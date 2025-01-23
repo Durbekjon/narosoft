@@ -18,15 +18,12 @@ const __dirname = path.dirname(__filename); // Get the directory name of the cur
 export const getAllLanguages = async (req, res, next) => {
   try {
     let data = await getCache("languages");
-    console.log(data);
     if (!data) {
       data = await Language.find();
       await createCache("languages", data);
     }
-    cleanLanguageCaches();
     return res.status(200).json(data);
   } catch (error) {
-    console.log(error);
     next(createError(500, error.message));
   }
 };
@@ -104,8 +101,8 @@ export const deleteLanguage = async (req, res, next) => {
 };
 export const initializeLanguages = async () => {
   const existingLanguages = await Language.find();
-
-  if (existingLanguages.length < 100) {
+  const totalLanguagesCount = 244
+  if (existingLanguages.length < totalLanguagesCount) {
     await Language.deleteMany();
 
     const filePath = path.join(__dirname, "./languages.json");
