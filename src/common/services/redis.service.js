@@ -9,7 +9,6 @@ const deleteCache = (key) => {
 
 const getCache = async (key) => {
   const cache = await redis.get(key);
-  console.log(cache);
   if (cache) {
     return JSON.parse(cache);
   }
