@@ -1,6 +1,5 @@
 import { Router } from "express";
 import {
-  createLanguage,
   getAllLanguages,
   getLanguageById,
   updateLanguage,
@@ -9,7 +8,6 @@ import {
 
 const router = Router();
 
-router.post("/", createLanguage); // Create
 router.get("/", getAllLanguages); // Read all
 router.get("/:id", getLanguageById); // Read one
 router.put("/:id", updateLanguage); // Update
