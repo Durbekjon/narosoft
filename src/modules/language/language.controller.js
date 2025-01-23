@@ -6,45 +6,24 @@ import {
   deleteCache,
   getCache,
 } from "../../common/services/redis.service.js";
+import { fileURLToPath } from "url";
+import path from "path";
+import fs from "fs";
+import logger from "../../common/utils/logger.js";
 
-// Create a new language
-export const createLanguage = async (req, res, next) => {
-  try {
-    const { name } = req.body;
-
-    if (!name) {
-      return next(createError(400, "Name is required"));
-    }
-
-    const isDataExist = await Language.findOne({ name });
-    if (isDataExist) {
-      return next(createError(400, "Language already exists"));
-    }
-
-    const data = await Language.create({ name });
-    await Promise.all([
-      createCache("language/" + data.id, data),
-      deleteCache("languages"),
-    ]);
-    res.status(201).json(data);
-  } catch (error) {
-    next(createError(500, error.message));
-  }
-};
+const __filename = fileURLToPath(import.meta.url); // Get the file path of the current module
+const __dirname = path.dirname(__filename); // Get the directory name of the current module
 
 // Get all languages
 export const getAllLanguages = async (req, res, next) => {
   try {
     let data = await getCache("languages");
-    console.log(data);
     if (!data) {
       data = await Language.find();
       await createCache("languages", data);
     }
-    cleanLanguageCaches();
     return res.status(200).json(data);
   } catch (error) {
-    console.log(error);
     next(createError(500, error.message));
   }
 };
@@ -118,5 +97,31 @@ export const deleteLanguage = async (req, res, next) => {
     return res.status(200).json({ result: "OK" });
   } catch (error) {
     next(createError(500, error.message));
+  }
+};
+export const initializeLanguages = async () => {
+  const existingLanguages = await Language.find();
+  const totalLanguagesCount = 244
+  if (existingLanguages.length < totalLanguagesCount) {
+    await Language.deleteMany();
+
+    const filePath = path.join(__dirname, "./languages.json");
+    const fileContent = fs.readFileSync(filePath, "utf8");
+    const languages = JSON.parse(fileContent);
+
+    const languageCreationTasks = languages.map((language) =>
+      Language.create({
+        name: language.name,
+        flag: language.flag,
+        code: language.code,
+        dial_code: language.dial_code,
+      })
+    );
+
+    await Promise.all(languageCreationTasks);
+
+    logger.info("Languages initialized successfully.");
+  } else {
+    logger.info("Languages are already initialized.");
   }
 };

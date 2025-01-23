@@ -1,7 +1,10 @@
 import { Schema, model } from "mongoose";
 
 const languageSchema = new Schema({
-  name: { type: String, required: true, unique: true },
+  code: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  flag: String,
+  dial_code: String,
 });
 
 const Language = model("Language", languageSchema);

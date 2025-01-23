@@ -5,6 +5,7 @@ import logger from "./src/common/utils/logger.js";
 import { redisConfig } from "./src/common/config/redis.config.js";
 import mongodbConfig from "./src/common/config/mongodb.config.js";
 import languageRoutes from "./src/modules/language/language.route.js";
+import { initializeLanguages } from "./src/modules/language/language.controller.js";
 const app = e();
 
 function initializeApp() {
@@ -14,6 +15,7 @@ function initializeApp() {
   config(); // dotenv config
   mongodbConfig(); // connect to db
   redisConfig();
+  initializeLanguages()
 }
 
 function initializeModules(prefix) {
@@ -34,7 +36,6 @@ function bootstrap() {
       message: errorMessage,
     });
   });
-
   app.listen(port, () => {
     logger.info(`Server listening on http://localhost:${port}`);
   });
